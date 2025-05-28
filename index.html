@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Графи</title>
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+    <script type="module" src="graph.js"></script>
+    <style>
+      #cy-undirected {
+        width: 500px;
+        height: 500px;
+        display: inline-block;
+        margin-right: 20px;
+      }
+
+      #cy-directed {
+        width: 500px;
+        height: 500px;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Напрямлений граф</h2>
+    <div id="cy-directed"></div>
+
+    <h2>Ненапрямлений граф</h2>
+    <div id="cy-undirected"></div>
+
+    <script type="module">
+      import { Graph } from "./graph.js";
+
+      const directedGraph = new Graph(true);
+      directedGraph.matrixGenerate();
+      const directedAdjacencyMatrix = directedGraph.matrix;
+
+      console.log("Матриця суміжності напрямленого графа");
+      console.table(directedAdjacencyMatrix);
+
+      const directedNodes = directedAdjacencyMatrix.map((_, i) => ({
+        data: { id: `d${i}` },
+      }));
+      const directedEdges = [];
+
+      for (let i = 0; i < directedAdjacencyMatrix.length; i++) {
+        for (let j = 0; j < directedAdjacencyMatrix.length; j++) {
+          if (directedAdjacencyMatrix[i][j] === 1) {
+            directedEdges.push({ data: { source: `d${i}`, target: `d${j}` } });
+          }
+        }
+      }
+
+      const cyDirected = cytoscape({
+        container: document.getElementById("cy-directed"),
+        elements: directedNodes.concat(directedEdges),
+        style: [
+          {
+            selector: "node",
+            style: {
+              "background-color": "#007bff",
+              label: "data(id)",
+            },
+          },
+          {
+            selector: "edge",
+            style: {
+              width: 3,
+              "line-color": "#007bff",
+              "curve-style": "bezier",
+              "target-arrow-shape": "triangle",
+              "target-arrow-color": "red",
+            },
+          },
+        ],
+        layout: {
+          name: "circle",
+        },
+      });
+
+      const undirectedGraph = new Graph();
+      undirectedGraph.matrixGenerate();
+      const undirectedAdjacencyMatrix = undirectedGraph.matrix;
+
+      console.log("Матриця суміжності ненапрямленого графа");
+      console.table(undirectedAdjacencyMatrix);
+
+      const undirectedNodes = undirectedAdjacencyMatrix.map((_, i) => ({
+        data: { id: `u${i}` },
+      }));
+      const undirectedEdges = [];
+
+      for (let i = 0; i < undirectedAdjacencyMatrix.length; i++) {
+        for (let j = i + 1; j < undirectedAdjacencyMatrix.length; j++) {
+          if (undirectedAdjacencyMatrix[i][j] === 1) {
+            undirectedEdges.push({
+              data: { source: `u${i}`, target: `u${j}` },
+            });
+          }
+        }
+      }
+
+      const cyUndirected = cytoscape({
+        container: document.getElementById("cy-undirected"),
+        elements: undirectedNodes.concat(undirectedEdges),
+        style: [
+          {
+            selector: "node",
+            style: {
+              "background-color": "#007bff",
+              label: "data(id)",
+            },
+          },
+          {
+            selector: "edge",
+            style: {
+              width: 3,
+              "line-color": "#007bff",
+              "curve-style": "bezier",
+            },
+          },
+        ],
+        layout: {
+          name: "circle",
+        },
+      });
+    </script>
+  </body>
+</html>
